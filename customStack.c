@@ -78,6 +78,7 @@ void printExprStack(ExprStack* stack){
 	printf("\n");
 }
 
+
 //TODO
 //free up allocted memeory
 void freeStackMemory(ExprStack* stack){

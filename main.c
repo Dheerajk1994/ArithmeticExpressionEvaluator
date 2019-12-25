@@ -18,6 +18,52 @@ int getPrecedence(char c){
 	}
 }
 
+bool isOperand(char* expressionIterator){
+	return(
+		*expressionIterator == '*' ||
+		*expressionIterator == '/' ||
+		*expressionIterator == '+' ||
+		*expressionIterator == '-'
+		);
+}
+
+int binaryOperateToInt(char* operator, ExprStack* solutionStack){
+	//TODO: prone to error
+	int operand1 = 0, operand2 = 0;
+	char* end;
+	int i = strtol(peekExprStack(solutionStack), &end, 10);
+	printf("%d\n", i);
+	//TODO: turn into back into char* and push into stack?
+	//or keep them as ints?
+	//decisions decisions
+
+}
+
+void solveExpression(ExprStack* outPutStack,int expressionStringLength, int maxLiteralLength){
+	ExprStack* postFixStack = newExprStack(expressionStringLength, maxLiteralLength);
+	ExprStack* solutionStack = newExprStack(expressionStringLength, maxLiteralLength);
+
+	char* top;
+	while(exprStackIsEmpty(outPutStack) != true){
+		top = peekExprStack(outPutStack);
+		pushExprStack(postFixStack, top);
+		popExprStack(outPutStack);
+	}
+	while(exprStackIsEmpty(postFixStack) != true){
+		top = peekExprStack(postFixStack);
+		if(isOperand(top) == false){
+			pushExprStack(solutionStack, top);
+			popExprStack(postFixStack);
+		}
+		else{
+			binaryOperateToInt(top, solutionStack);
+			//
+			popExprStack(postFixStack);
+
+		}
+	}
+}
+
 void evaluateExpression(char* expressionString, int expressionStringLength, int maxLiteralLength){
 	ExprStack* symbolStack = newExprStack(expressionStringLength, 1);
 	ExprStack* outPutStack = newExprStack(expressionStringLength, maxLiteralLength);
@@ -44,12 +90,7 @@ void evaluateExpression(char* expressionString, int expressionStringLength, int 
 			}
 			popExprStack(symbolStack);
 		}
-		else if(
-			*expressionIterator == '*' ||
-			*expressionIterator == '/' ||
-			*expressionIterator == '+' ||
-			*expressionIterator == '-'
-		){
+		else if(isOperand(expressionIterator) == true){
 			//push anything that was in the literal to the output stack
 			//must be numbers
 			if(literalIndex > 0){
@@ -84,8 +125,7 @@ void evaluateExpression(char* expressionString, int expressionStringLength, int 
 		pushExprStack(outPutStack, peekExprStack(symbolStack));
 		popExprStack(symbolStack);
 	}
-	printf("Postfix: ");
-	printExprStack(outPutStack);
+	solveExpression(outPutStack, expressionStringLength, maxLiteralLength);
 }
 
 int main(){
