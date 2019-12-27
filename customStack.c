@@ -81,10 +81,16 @@ void printExprStackInfo(ExprStack* stack){
   printf("Stack size %d - Expression length %d - iterator %d\n", stack->stackSize, stack->exprLength, stack->iterator); 
 }
 
-//TODO
 //free up allocted memeory
 void freeStackMemory(ExprStack* stack){
+  char** iterator = stack->stackArray;
+  char** end = iterator + stack->iterator + 1;
+
+  for(end; iterator != end; ++iterator){
+    free(*iterator);
+  }
   free(stack->stackArray);
+  free(stack);
 }
 
 
