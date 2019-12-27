@@ -16,6 +16,7 @@ char* peekExprStack(ExprStack* stack);
 bool popExprStack(ExprStack* stack);
 bool exprStackIsEmpty(ExprStack* stack);
 void printExprStack(ExprStack* stack);
+void printExprStackInfo(ExprStack* stack);
 void freeStackMemory(ExprStack* stack);
 
 #endif

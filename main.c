@@ -23,40 +23,45 @@ bool isOperand(char* expressionIterator){
 	 *expressionIterator == '*' ||
 	 *expressionIterator == '/' ||
 	 *expressionIterator == '+' ||
-	 *expressionIterator == '-'
+	 *expressionIterator == '-' ||
+	 *expressionIterator == '^'
 	 );
 }
 
 int binaryOperateToInt(char* operator, int operand1, int operand2){
   //TODO: prone to error
-  printf("operand2: %d operand1: %d\n", operand2, operand1);
-  char* end;
   switch(*operator){
-  case '+':
-    return operand1 + operand2;
-    break;
-  case '-':
-    return operand1 - operand2;
-    break;
-  case'*':
-    return operand1 * operand2;
-    break;
-  case'/':
-    return operand1 / operand2;
-    break;
+    case '+':
+      return  operand1 + operand2;
+    case '-':
+      return  operand1 - operand2;
+    case'*':
+      return  operand1 * operand2;
+    case'/':
+      return  operand1 / operand2;
+  default:
+    printf("error in binaryoperatetoint unknown operator %s\n", operator);
   }
 }
 void solveExpression(ExprStack* outPutStack,int expressionStringLength, int maxLiteralLength){
+  //REVERSE THE ORDER OF THE OUTPUT STACK
   ExprStack* postFixStack = newExprStack(expressionStringLength, maxLiteralLength);
-  ExprStack* solutionStack = newExprStack(expressionStringLength, maxLiteralLength);
-
   char* top;
   while(exprStackIsEmpty(outPutStack) == false){
     top = peekExprStack(outPutStack);
     pushExprStack(postFixStack, top);
     popExprStack(outPutStack);
   }
+
+  //WHILE THERE ARE ITEMS IN POSTFIX STACK - GO THROUGH EACH ITEM 
+  //IF THE ITEM IS AN OPERAND THEN ADD THE ITEM TO THE SOLUTIONS STACK
+  //IF THE ITEM IS AN OPERATOR THEN CALCULATE THE RESULT WITH THE OPERAND AND TOP TWO
+  //OPERANDS IN THE SOLUTIONS STACK - PUSH THE RESULT BACK ON TOP OF THE SOLUTIONS STACK
+  ExprStack* solutionStack = newExprStack(expressionStringLength, maxLiteralLength);
   char* intString = NULL;
+  char* end = NULL;
+  int operand1 = 0, operand2 = 0, result = 0;
+  printExprStack(postFixStack);
   while(exprStackIsEmpty(postFixStack) == false){
     top = peekExprStack(postFixStack);
     popExprStack(postFixStack);
@@ -64,19 +69,18 @@ void solveExpression(ExprStack* outPutStack,int expressionStringLength, int maxL
       pushExprStack(solutionStack, top);
     }
     else{
-      printExprStack(solutionStack);
-      char* end;
-      int operand2 = strtol(peekExprStack(solutionStack), &end, 10);
+      //operand2
+      operand2 = strtol(peekExprStack(solutionStack), &end, 10);
       popExprStack(solutionStack);
-      int operand1 = strtol(peekExprStack(solutionStack), &end, 10);
+      //operand1
+      operand1 = strtol(peekExprStack(solutionStack), &end, 10);
       popExprStack(solutionStack);
-      int result = binaryOperateToInt(top, operand1, operand2);
-      //printf("result %d\n", result);
-      intString = malloc(sizeof(char) * MAX_LITERAL_LENGTH);
+
+      result = binaryOperateToInt(top, operand1, operand2);
+
+      intString = malloc(sizeof(char) * 10);
       sprintf(intString, "%d", result);
-      printf("result to char string %s\n", intString);
       pushExprStack(solutionStack, intString);
-      //printf("top of solutions stack after pushing: %s\n", peekExprStack(solutionStack));
     }
   }
   printf("Solution: %s\n", peekExprStack(solutionStack));
@@ -98,7 +102,10 @@ void evaluateExpression(char* expressionString, int expressionStringLength, int 
       literal = malloc(sizeof(char) * maxLiteralLength);
     }
     else if(*expressionIterator == ')'){
-      pushExprStack(outPutStack, literal);
+      if(literalIndex > 0){
+	pushExprStack(outPutStack, literal);
+	literalIndex = 0;
+      }
       literal = malloc(sizeof(char) );
       char* topChar = peekExprStack(symbolStack);
       while(exprStackIsEmpty(symbolStack) == false && *topChar != '('){
@@ -143,6 +150,7 @@ void evaluateExpression(char* expressionString, int expressionStringLength, int 
     pushExprStack(outPutStack, peekExprStack(symbolStack));
     popExprStack(symbolStack);
   }
+  printExprStack(outPutStack);
   solveExpression(outPutStack, expressionStringLength, maxLiteralLength);
 }
 
